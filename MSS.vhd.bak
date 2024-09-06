@@ -1,0 +1,61 @@
+library ieee;
+use ieee.std_logic_1164.all;
+entity MSS is
+	port(Clock,Resetn,Start,IngresoTarjeta,PushTeclado,Valido,Comprar,MaxBilletes,IngresoMoneda: in std_logic;
+		  EnDisplayTiempo,EnDisplayBilletes,EnTiempoIngresado,EnDisplayComprar,EnBilletes,LdBilletes,
+		  Valido,ET,RorW,Pasar: out std_logic);
+end MSS;
+
+architecture Controlador of MSS is 
+type estado is (Ta,Tb,Tc,Td,Te,Tf,Tg,Th,Ti,Tj,Tk,Tl,Tm,Tn,Too,Tp);
+signal y: estado;
+begin
+	process(Clock, Resetn)
+	begin
+		if Resetn='0' then y<=Ta;
+		elsif (Clock' event and Clock='1') then
+			case y is
+				when Ta=> if Start='1' then y<= Tb; else y<= Ta; end if;
+				when Tb=> if Start='0' then y<= Tc; else y<= Tb; end if;
+				when Tc=> if IngresoTarjeta='1' then y<= Td; else y<= Tc; end if;
+				when Td=> if IngresoTarjeta='0' then y<= Te; else y<= Td; end if;
+				when Te=> if PushTeclado='1' then y<= Tf; else y<= Te; end if;
+				when Tf=> if PushTeclado='0' then y<= Tg; else y<= Tf; end if;
+				when Tg=> if Valido='1' then y<= Th; else y<= Ti; end if;
+				when Th=> y<= Tc;
+				when Ti=> y<= Tj;
+				when Tj=> if Comprar='1' then y<= Tk; else y<= Tj; end if;
+				when Tk=> if Comprar='0' then y<= Tl; else y<= Tk; end if;
+				when Tl=> if MaxBilletes='1' then y<= Tp; else y<= Tm; end if;
+				when Tm=> if IngresoMoneda='1' then y<= Tn; else y<= Tm; end if;
+				when Tn=> if IngresoMoneda='0' then y<= Too; else y<= Tn; end if;
+				when Too=> y<= Tj;
+				when Tp=> y<= Te;
+			end case;
+		end if;
+	end process;
+	
+	process(y)
+	begin
+	EnDisplayTiempo<='0';EnDisplayBilletes<='0';EnTiempoIngresado<='0';EnDisplayComprar<='0';EnBilletes<='0';
+	LdBilletes<='0';Valido<='0';ET<='0';RorW<='0';Pasar<='0';
+		case y is
+			when Ta=>
+			when Tb=>
+			when Tc=>
+			when Td=> 
+			when Te=> EnDisplayTiempo<='1'; EnBilletes<='1'; LdBilletes<='1';
+			when Tf=>  
+			when Tg=> EnTiempoIngresado<='1';
+			when Th=> RorW<='1'; Pasar<='1';
+			when Ti=> EnDisplayComprar<='1';
+			when Tj=> EnDisplayComprar<='1';
+			when Tk=> 
+			when Tl=> EnDisplayBilletes<='1';
+			when Tm=> EnDisplayBilletes<='1';
+			when Tn=> EnDisplayBilletes<='1';
+			when Too=> EnDisplayBilletes<='1'; EnBilletes<='1';
+			when Tp=> EnDisplayBilletes<='1'; ET<='1';
+		end case;
+	end process;
+end Controlador;
